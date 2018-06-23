@@ -304,3 +304,4 @@ head(nba15)
 
 nba15_long <- reshape(nba15, timevar = "H", idvar = "GAME_ID", direction = "wide")
 head(nba15_long)
+
