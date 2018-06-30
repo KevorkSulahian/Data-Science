@@ -55,16 +55,51 @@ nba1 <- nba[which(abs(nba$home.PTS - nba$away.PTS) < 5), names(nba)]
 #Write a function that takes "x" as an argument and returns vector "y" containing all
 #the divisors of "x". (Hint! x%%y expression shows the remainder when x is divided by y)
 
+func <- function(x) {
+  y <- c(1:x)
+  y[x%%y == 0]
+}
+func(100)
 #8) (3p)
 #Use for loop statement to populate a 5x5 square matrix with random numbers from
 #the interval 1-10. (Hint! ?sample).
 
+x = matrix(data=NA, nrow= 5, ncol= 5)
+for (j in 1:5) {
+  for (i in 1:5) {
+    x[i,j] = sample(10, size = 1)
+  }
+}
+x
 #9) (5p)
 #Write a function that takes "x" vector as an input and returns it in an increasing order.
 #(Warning!!! Don't use any built in sorting function in R or from other libraries)
 #(Hint! There are many sorting algorithms used to sort a vector, an array etc. One is bubblesort)
 # https://en.wikipedia.org/wiki/Bubble_sort
 
+x <- sample(10)
+
+insertion_sort <- function(arr) {
+  for (i in 2:length(arr)) {
+    key = arr[i]
+    
+    j = i-1
+    while(j > 0 && key < arr[j] ) {
+      arr[(j+1)] = arr[j]
+      j = j -1
+    }
+    arr[(j+1)] = key
+  }
+  return(arr)
+}
+insertion_sort(x)
+
+
 #10) (3p)
 # Load Exams dataset from Moodle, explain in what format (wide, long) it's represented
 #and convert vice versa(If it is wide, convert to long and if long, convert to wide.)
+#exams <- read.csv("HomeWorks/Homework1/Exams.csv")
+exams <- read.csv("Exams.csv")
+# this is long format becuase every row is key-value combination
+library(reshape2)
+exams_wide <- reshape(data = exams,timevar = "Exam",idvar = "Person", direction = 'wide')

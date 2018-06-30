@@ -299,9 +299,10 @@ library(reshape2)
 nba_long <- melt(nba_east,id.vars = c("Team", "Season"))
 head(nba_long)
 
-nba15 <- read.csv("nba15.csv")
+nba15 <- read.csv("week1/nba15.csv")
 head(nba15)
 
 nba15_long <- reshape(nba15, timevar = "H", idvar = "GAME_ID", direction = "wide")
+
 head(nba15_long)
 
