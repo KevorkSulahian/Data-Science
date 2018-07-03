@@ -273,14 +273,33 @@ nba15 <- nba15 %>%
   arrange(GAME_DATE_EST) %>%
   group_by(TEAM_ABBREVIATION) %>%
   mutate(REST_DAYS = c(NA, diff(GAME_DATE_EST)))
+
 summary(nba15)
 
 nba15$REST_DAYS_F <- factor(nba15$REST_DAYS)
 levels(nba15$REST_DAYS_F)
 
 ggplot(nba15, aes(x= REST_DAYS_F, y = PTS)) + geom_boxplot() +
-  labs(x= "REST", y = "POINTS", title = "BOXPLOT OF POINTS  BY REST DAY")
+  labs(x= "REST", y = "POINTS", title = "BOXPLOT OF POINTS  BY REST DAY") 
+ggplot(nba15, aes(x= REST_DAYS_F, y = PTS)) + geom_boxplot() +
+  labs(x= "REST", y = "POINTS", title = "BOXPLOT OF POINTS  BY REST DAY") + facet_grid(H~.)
 
+nba15 <- nba15 %>%
+  arrange(GAME_DATE_EST, GAME_ID, H) %>%
+  group_by(GAME_ID) %>%
+  mutate(WIN_H = c(NA, diff(PTS)),
+         WIN_A = -dplyr::lead(WIN_H, 1))
 
+nba15 <- as.data.frame(nba15)  
+head(nba15)
 
-  
+nba15$PTS_DIF <- rowSums(nba15[,c("WIN_A", "WIN_H")], na.rm = T)
+nba15$WIN_LOSE <- ifelse(nba15$PTS_DIF > 0 & nba15$H == "H", "WIN",
+                         ifelse(nba15$PTS_DIF >0 & nba15$H =="A", "WIN", "LOSE"))
+
+table(nba15$PTS_DIF>0, nba15$WIN_LOSE)
+
+ggplot(nba15, aes(x = REST_DAYS_F, fill = WIN_LOSE)) + geom_bar(position = "fill") + 
+  facet_grid(.~H) +
+  labs(x = "REST DAY", y = "PROBABILITIES", title="probability to win for home/away", fill = "Result of the game")
+x``
