@@ -1,0 +1,243 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={HW\#2},
+            pdfauthor={Karen Mkhitaryan},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{HW\#2}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Karen Mkhitaryan}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{June 29, 2018}
+
+
+\begin{document}
+\maketitle
+
+In this homework you will work on video games dataset containing
+information about popular video games, their sales in North America,
+Europe, Japan and globally in the world. In the dataset ratings by
+critics and users are presented and ratings of the games.
+
+\subsection{Solve the problems and submit the .Rmd
+file.}\label{solve-the-problems-and-submit-the-.rmd-file.}
+
+WARNINGS!!! (If not done you will lose points.) 1) Make sure to put
+titles on the plots and texts on axes. 2) If the plot is not
+interpretable, zoom on ``x'' or ``y'' axes to make the graph more
+interpretable (P4,P5, P7 and P8).
+--------------------------------------------------------
+
+\section{P1)}\label{p1}
+
+Import the dataframe in R and with the use of dplyr subset it using the
+following information.
+
+-remove columns Publisher, JP\_Sales (Sales in Japan), Critic\_Count,
+User\_Count and Developer. (1p) -Multiply the numbers in NA\_Sales,
+EU\_Sales and GP\_Sales by 1 million as they are given in millions of
+sales. (1p) -include only those for which NA\_Sales\textgreater{}=20000,
+EU\_Sales\textgreater{}=20000 and Ranking is among
+Everyone(``E''),Mature(``M''), Teen(``T''), Everyone 10+(``E10+'') and
+Adults Only (``AO''). (1p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P2)}\label{p2}
+
+Use data cleaning tools to clean the data.
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Look at the columns which are either numeric or integer. Make sure
+  they contain only numbers or NA's (nothing else). (1p)
+\item
+  Critic scores can be from 0 to 100 and users scores from 0 to 10. If
+  there are values not from these intervals clean that observations
+  using ifelse statement. (2p)
+\item
+  Look at the Genres: check if all categories are unique and if not,
+  clean them so that there are no duplicate names. (2p)
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P3)}\label{p3}
+
+Create a scatterplot displaying how User scores and Critics score are
+interconnected -make the point shape triangle, color red and
+transperancy 20\%. Explain what you see in the graph. (1p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P4)}\label{p4}
+
+Construct a graph showing how the global sales of the game is dependent
+of a score given by the user and explain what you see in the graph.
+(Hint! ?options to display values without ``e'' short notation) (1p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P5)}\label{p5}
+
+Make previous plot more appealing using the following. (1p) -x axis name
+-- ``Score given by the User'' color red, bold size=15 -y axis name --
+``Global Sales of the game'' color red, bold size=15 -points (shape -
+square, color-red, size- 1.5) -title of the plot -- ``User Score versus
+Global Sales'' - Make panel background color \#09f2d5 - axis texts bold
+black
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P6)}\label{p6}
+
+Create a histogram to find the distribution of the games by Genre. What
+are the top 3 Genres. Rotate Genre names on ``x'' axis to avoid
+overlapping text (Hint! ?element\_text, ?theme) (2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P7)}\label{p7}
+
+Define the Rating as Factor and use faceting to plot the User score of
+the game versus the North America Sales for different Ratings. Make
+comment about the results.(2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P8)}\label{p8}
+
+Create a boxplot where ``x axis'' represents the Genre and ``y axis''
+the Global Sales of the video game for a particular Genre. Make the text
+on ``x'' axis vertical (Hint! ?theme, ?element\_text). Make some
+comments.(2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P9)}\label{p9}
+
+Zoom the previous plot (Numbers on ``y'' axis (0,2million)) to clearly
+see the boxplots for each Genre and make comments. (1p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P10)}\label{p10}
+
+Create a barplot using dyplr functionalities and faceting to show the
+total Global Sales for each year for each Rating. (2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P11)}\label{p11}
+
+Use the pipe operator and functions from dplyr package and show the
+number of video games in each genre in descending order. (2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P12)}\label{p12}
+
+Use dplyr to create a new variable (CU\_Score) in Video dataset which
+for each video game will show the average of Critic score and 10* User
+Score. (2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P13)}\label{p13}
+
+Use the pipe operator and functions from dplyr package to find the top 3
+platforms and the number of video games developed for each of them. (2p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{P14)}\label{p14}
+
+We are interested in the number of video games developed for top
+platforms for different years. Pick the top 3 platforms from previous
+problem and make other platforms as ``Other'' using dplyr (Hint! ifelse
+statement). Thereafter remove observations from dataframe which have NA
+values (Hint! ?complete.cases).Now use faceting to draw the distribution
+of games for each year for each platform. Make text on ``x'' axis
+vertical and size=6. Make comments how the number of video games changed
+for each platform for different years.(4p)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+
+\end{document}

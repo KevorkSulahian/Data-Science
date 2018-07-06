@@ -2,7 +2,9 @@
 title: "HW#2"
 author: "Karen Mkhitaryan"
 date: "June 29, 2018"
-output: pdf_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 
@@ -26,6 +28,13 @@ Import the dataframe in R and with the use of dplyr subset it using the followin
 -include only those for which NA_Sales>=20000, EU_Sales>=20000 and Ranking is among Everyone("E"),Mature("M"), Teen("T"), Everyone 10+("E10+") and Adults Only ("AO"). (1p)
 
 ----------------------------------------------------------------------------
+
+```{r}
+
+read.csv("Video_Games.csv")
+
+```
+
 
 #P2)
 Use data cleaning tools to clean the data.
