@@ -72,6 +72,7 @@ Batsy <- movies[movies$title == "zoom",]
 # VISUALIZING CATEGORICAL DATA  
 
 summer <- read.csv("week2/summer.csv")
+
 summer_usa <- summer[summer$Country == "USA",]
 
 ggplot(summer_usa, aes(x=Medal)) + geom_bar()
