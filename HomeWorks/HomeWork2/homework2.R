@@ -7,9 +7,9 @@ games <- video_games %>%
   mutate(NA_Sales = video_games$NA_Sales * 1000000,
          EU_Sales = video_games$EU_Sales * 1000000,
          Global_Sales = video_games$Global_Sales * 1000000) %>%
-  filter(NA_Sales >= 20000, EU_Sales >= 20000) %>%
+  filter(NA_Sales >= 20000, EU_Sales >= 20000) %>%  
   filter(str_detect(Rating, "\\w") )
-  
+
 # 2)
 str(games)
 sapply(games, class)
@@ -72,7 +72,8 @@ ggplot(games, aes(x = Genre)) +geom_histogram(stat = "count") +
 games$Rating <- as.factor(games$Rating)
 ## add some fuckin shit yo
 ggplot(games, aes(x = User_Score, y = NA_Sales)) + geom_point() +
-  facet_grid(Rating~.) #or .~Rating
+  facet_grid(.~Rating) + #or Rating.~  
+  labs(x = "User Score", y = "North America Sales", title = "User Score vs NA Sales" )
 
 #8)
 
