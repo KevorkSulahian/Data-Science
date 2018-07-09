@@ -1,10 +1,7 @@
 ---
 title: "HW#2"
-author: "Karen Mkhitaryan"
-date: "June 29, 2018"
-output:
-  html_document: default
-  pdf_document: default
+author: "Nareg Barsoumian"
+date: "July 8, 2018"
 ---
 
 
@@ -26,25 +23,22 @@ Import the dataframe in R and with the use of dplyr subset it using the followin
 -remove columns Publisher, JP_Sales (Sales in Japan), Critic_Count, User_Count and Developer. (1p)
 -Multiply the numbers in NA_Sales, EU_Sales and GP_Sales by 1 million as they are given in millions of sales. (1p)
 -include only those for which NA_Sales>=20000, EU_Sales>=20000 and Ranking is among Everyone("E"),Mature("M"), Teen("T"), Everyone 10+("E10+") and Adults Only ("AO"). (1p)
-
-----------------------------------------------------------------------------
-
-```{r}
-
-video_games <- read.csv("Video_Games.csv", stringsAsFactors = F)
-
+```{r} 
 library(dplyr)
-library(tidyverse)
-games <- video_games %>% 
-  select(-c(Publisher, JP_Sales, Critic_Count, User_Count, Developer)) %>%
-  mutate(NA_Sales = video_games$NA_Sales * 1000000,
-         EU_Sales = video_games$EU_Sales * 1000000,
-         Global_Sales = video_games$Global_Sales * 1000000) %>%
-  filter(NA_Sales >= 20000, EU_Sales >= 20000,
-         Rating =='E' | Rating == 'M' | Rating == 'T' | Rating == 'E10+' | Rating == 'AO')
+Video_Games = read.csv("Video_Games.csv", stringsAsFactors = F)
+str(Video_Games)
 
+Video_Games = Video_Games %>%
+      #within(rm(Publisher, JP_Sales, Critic_Count, User_Count, Developer))
+      select(-c(Publisher, JP_Sales, Critic_Count, User_Count, Developer)) %>%
+      mutate(NA_Sales = NA_Sales * 1000000,
+             EU_Sales = EU_Sales * 1000000,
+             Global_Sales = Global_Sales * 1000000) %>%
+      filter(NA_Sales >= 20000,
+             EU_Sales >= 20000,
+             Rating =='E' | Rating == 'M' | Rating == 'T' | Rating == 'E10+' | Rating == 'AO' )
 ```
-
+----------------------------------------------------------------------------
 
 #P2)
 Use data cleaning tools to clean the data.
@@ -55,35 +49,24 @@ Look at the columns which are either numeric or integer. Make sure they contain 
 Critic scores can be from 0 to 100 and users scores from 0 to 10. If there are values not from these intervals clean that observations using ifelse statement. (2p)
 (c)
 Look at the Genres: check if all categories are unique and if not, clean them so that there are no duplicate names. (2p)
-
 ```{r} 
-str(games)
-sapply(games, class)
-unique(games$User_Score)
-unique(video_games$Year)
-games$User_Score <- as.numeric(games$User_Score)
-games$Year <- as.numeric(games$Year)
+#Assuming that we are continuously working on the same data.frame Video_Games
+sapply(Video_Games, is.numeric)
+unique(Video_Games$Year)
+unique(Video_Games$User_Score)
+Video_Games$Year = str_replace_all(Video_Games$Year, "N/A", replacement = "NA")
+Video_Games$Year = as.numeric(Video_Games$Year)
+Video_Games$User_Score = str_replace_all(Video_Games$User_Score, pattern = "\\s+", replacement = "NA")
+Video_Games$User_Score = as.numeric(Video_Games$User_Score)
 
-summary(games$Year)
+summary(Video_Games$Critic_Score)
+summary(Video_Games$User_Score)
+Video_Games$Critic_Score = ifelse(Video_Games$Critic_Score > 100 , NA, Video_Games$Critic_Score)
+Video_Games$User_Score = ifelse(Video_Games$User_Score > 10 , NA, Video_Games$User_Score)
 
-summary(games$Critic_Score)
-games$Critic_Score <- ifelse(games$Critic_Score > 100, NA, games$Critic_Score)
-summary(games$Critic_Score)
-
-summary(games$User_Score)
-games$User_Score <- ifelse(games$User_Score > 10, NA, games$User_Score)
-summary(games$User_Score)
-
-unique(games$Platform) #looks ok 
-
-unique(games$Genre) # repeating names (uppercase problem)
-games$Genre <- toupper(games$Genre)
-unique(games$Genre) #spaces yo
-games$Genre <- trimws(games$Genre)
-unique(games$Genre)
-
-
-
+unique(Video_Games$Genre)
+Video_Games$Genre = trimws(Video_Games$Genre)
+Video_Games$Genre = toupper(Video_Games$Genre)
 ```
 ----------------------------------------------------------------------------
 
@@ -91,27 +74,24 @@ unique(games$Genre)
 Create a scatterplot displaying how User scores and Critics score are interconnected
 -make the point shape triangle, color red and transperancy 20%. 
 Explain what you see in the graph. (1p)
-```{r, error=FALSE, include=FALSE, cache=FALSE}
-
+```{r} 
 library(ggplot2)
-
-ggplot(games, aes(x = User_Score, y = Critic_Score)) + geom_point() +
-  labs(x= "User Scoes", y= "Critic Scores", title = "User vs Critic") +
-  geom_point(color = "red", shape=2, alpha = 0.2)
-#they increase together, this means that they are dependent 
+ggplot(Video_Games, aes(x=User_Score, y=Critic_Score)) + geom_point(color = "Red", shape = 2, alpha = 0.2) +
+  labs(x = "User Score", y = "Critic Score")
+#As a user's score increases a critic's score is also increasing for a video game 
+# and we can see that there are more users who voted more than 5 than less the same goes for critics.
 ```
 ----------------------------------------------------------------------------
 
 #P4)
 Construct a graph showing how the global sales of the game is dependent of a score given by the user and explain what you see in the graph. (Hint! ?options to display values without "e" short notation) (1p)
+```{r} 
+options(scipen = 99999)
+ggplot(Video_Games, aes(x=User_Score, y=Global_Sales)) + geom_point() +
+  labs(x = "User Score", y = "Global Sales")
 
-```{r, error=TRUE}
-
-options(scipen=10000)
-ggplot(games, aes(x = User_Score, y = Global_Sales)) + geom_point() +
-    coord_cartesian(ylim = c(40000,10000000))
-# we can see a linear regression with some mistakes
-
+ggplot(Video_Games, aes(x=User_Score, y=Global_Sales)) + geom_point() +
+  labs(x = "User Score", y = "Global Sales") + coord_cartesian(ylim = c(0,2000000))
 ```
 ----------------------------------------------------------------------------
 
@@ -124,143 +104,120 @@ Make previous plot more appealing using the following. (1p)
 - Make panel background color #09f2d5
 - axis texts bold black
 ```{r} 
-
-ggplot(games, aes(x = User_Score, y = Global_Sales)) + geom_point(color="red", shape = 1) +
-  coord_cartesian(ylim = c(40000,10000000)) +
-  labs(x="Score given by the User", y = "Global Sales of the game", title = "User Score versus Global Sales") +
+ggplot(Video_Games, aes(x=User_Score, y=Global_Sales)) + geom_point(color = "red", shape = 1, size = 1.5) + 
+  labs(title = "User Score versus Global Sales", x = "Score given by the User", y= "Global Sales of the Game") +
   theme(axis.title.x = element_text(size = 15, color = "red", face = "bold"),
         axis.title.y = element_text(size = 15, color = "red", face = "bold"),
-        axis.text = element_text(face = "bold", color = "black"),
-        panel.background = element_rect(fill="#09f2d5")) +
-  geom_point(color="black", shape = 0, size =1.5) +
-  coord_cartesian(ylim = c(40000,10000000))
- 
+        panel.background = element_rect(fill = "#09f2d5"),
+        axis.text = element_text(color = "black", face = "bold"))
 ```
 ----------------------------------------------------------------------------
 
 #P6)
 Create a histogram to find the distribution of the games by Genre. What are the top 3 Genres. Rotate Genre names on "x" axis to avoid overlapping text (Hint! ?element_text, ?theme) (2p)
 ```{r}
-games$Rating <- as.factor(games$Rating)
-ggplot(games, aes(x = User_Score, y = NA_Sales)) + geom_point() +
-  facet_grid(.~Rating) + #or Rating.~  
-  labs(x = "User Score", y = "North America Sales", title = "User Score vs NA Sales" )
-
+ggplot(Video_Games, aes(x=Genre)) + geom_histogram(stat = "count") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5))
 ```
+
 ----------------------------------------------------------------------------
 
 #P7)
 Define the Rating as Factor and use faceting to plot the User score of the game versus the North America Sales for different Ratings. Make comment about the results.(2p)
-```{r}
-games$Rating <- as.factor(games$Rating)
-ggplot(games, aes(x = User_Score, y = NA_Sales)) + geom_point() +
-  facet_grid(.~Rating) + #or Rating.~  
-  labs(x = "User Score", y = "North America Sales", title = "User Score vs NA Sales" )
+```{r} 
+Video_Games$Rating = factor(Video_Games$Rating)
 
+ggplot(Video_Games, aes(x = User_Score, y = NA_Sales)) + geom_point() + facet_grid(Rating~.) +
+  labs(x="User Score", y = "NA Sales")
+#As we can see there is only one video game which has "AO" rating, other video games' sales are increasing in some sense
+# as a user's score increases. For rating "M" we see random increase in sales even if user score is low and the highest number in sales
+# belongs to a video game that has rating "E".
 ```
 ----------------------------------------------------------------------------
 
 #P8)
 Create a boxplot where "x axis" represents the Genre and "y axis" the Global Sales of the video game for a particular Genre. Make the text on "x" axis vertical (Hint! ?theme, ?element_text). Make some comments.(2p) 
-```{r}
-
-ggplot(games, aes(x = Genre, y = Global_Sales)) + geom_boxplot() +
+```{r} 
+ggplot(Video_Games, aes(x=Genre, y=Global_Sales)) + geom_boxplot() +
   theme(axis.text.x = element_text(angle=90)) +
   labs(y = "Global Sales")
-
-
 ```
-
 ----------------------------------------------------------------------------
 
 #P9)
 Zoom the previous plot (Numbers on "y" axis (0,2million)) to clearly see the boxplots for each Genre and make comments. (1p)
-
-```{r}
-
-ggplot(games, aes(x = Genre, y = Global_Sales)) + geom_boxplot() +
+```{r} 
+ggplot(Video_Games, aes(x=Genre, y=Global_Sales)) + geom_boxplot() +
   theme(axis.text.x = element_text(angle=90)) +
-  labs(y = "Global Sales") +
-  coord_cartesian(ylim = c(0,2000000)) 
+  coord_cartesian(ylim = c(0,2000000)) + 
+  labs(y = "Global Sales")
+
+#(Comment for 8-9) As we can see the median for all genres is closer to the first quartile than it is to the third quartile. 
+#Shooter genre has the highest 3rd quartile. Adventure genre has the lowest 1st quartile.
+#All of them have a lot of outliers but the Sports' outlier is the highest as we saw
 ```
-
-##As we can see the shooter games almost have the highest sales but overall they are all pretty close to each other
-
 ----------------------------------------------------------------------------
 
 #P10)
 Create a barplot using dyplr functionalities and faceting to show the total Global Sales for each year for each Rating. (2p)
-```{R}
-games %>%
+```{r} 
+Video_Games %>%
   group_by(Year, Rating) %>%
-  summarise(glob = sum(Global_Sales)) %>%
-  ggplot(aes(x = Year, y = glob)) +geom_bar(stat="identity") +
+  summarise(Total_GSales = sum(Global_Sales)) %>%
+  ggplot(aes(x = Year, y = Total_GSales)) + 
+  geom_bar(stat = "identity") +
   facet_grid(.~Rating)
-
-
-
 ```
 ----------------------------------------------------------------------------
 
 #P11)
 Use the pipe operator and functions from dplyr package and show the number of video games in each genre in descending order. (2p)
-```{r}
-
-number_eleven <- games %>%
+```{r} 
+Video_Games %>%
   group_by(Genre) %>%
-  summarise(num = n_distinct(Name)) %>%
-  arrange(desc(num))
-  
-number_eleven
-
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+#For distinct Video games
+Video_Games %>%
+  group_by(Genre) %>%
+  summarise(Count = n_distinct(Name)) %>%
+  arrange(desc(Count))
 ```
 ----------------------------------------------------------------------------
 
 #P12)
 Use dplyr to create a new variable (CU_Score) in Video dataset which for each video game will show the average of Critic score and 10* User Score. (2p)
-```{r}
-
-games <- games %>%
-  mutate(CU_User = ((User_Score * 10) + Critic_Score)/2)
-  
-
+```{r} 
+Video_Games = Video_Games %>%
+  mutate(CU_Score = (Critic_Score + 10 * User_Score) / 2)
 ```
 ----------------------------------------------------------------------------
 
 #P13)
 Use the pipe operator and functions from dplyr package to find the top 3 platforms and the number of video games developed for each of them. (2p)
-```{R}
-# Top platform is by how average sale and not the quantity of games
-best_platforms <- games %>%
-  group_by(Platform) %>%
-  summarise(sales_mean = mean(Global_Sales),
-            num_of_games = n_distinct(Name))
-
-best <- best_platforms %>%
-  top_n(best_platforms$sales_mean, n= 3)
-
+```{r} 
+Top_3_Platforms = Video_Games %>%
+          group_by(Platform) %>%
+          summarise(Count = n()) %>%
+          arrange(desc(Count)) %>%
+          top_n(3)
 ```
 ----------------------------------------------------------------------------
 
 #P14)
 We are interested in the number of video games developed for top platforms for different years. Pick the top 3 platforms from previous problem and make other platforms as "Other" using dplyr (Hint! ifelse statement). Thereafter remove observations from dataframe which have NA values (Hint! ?complete.cases).Now use faceting to draw the distribution of games for each year for each platform. Make text on "x" axis vertical and size=6. Make comments how the number of video games changed for each platform for different years.(4p)
-```{R}
+```{r} 
+Video_Games$Platform = ifelse(Video_Games$Platform %in% Top_3_Platforms$Platform, Video_Games$Platform, "other")
 
-best_platforms_y <- games %>%
-  group_by(Platform, Year, add = T) %>%
-  summarise(sales_mean = mean(Global_Sales),
-            num_of_games = n_distinct(Name))
+Video_Games = Video_Games[complete.cases(Video_Games), ]
 
-top_notch <- best_platforms_y %>%
-  group_by(Platform) %>%
-  filter(Platform %in% best$Platform)
+ggplot(Video_Games, aes(x=Year)) +
+  geom_bar() + facet_grid(.~Platform)
 
-top_notch <- top_notch[complete.cases(top_notch), ]
-
-ggplot(top_notch, aes(x = num_of_games, y = Platform)) + geom_point() +
-  facet_wrap(~Year, ncol= 5) + 
-  theme(axis.text.x = element_text(size = 10))
-
-
+#Before 2000 PS2,PS3, and X360 were not produced yet so there were no video games developed for these platforms.
+#Most video games were developed in 2003 for "other" platforms and it seems like the launch of PS2 did not affect other platforms until 2005.
+#Seems like after the launch of PS3 in 2005, and X360 in 2006, the number of video games for PS2 droped a bit and in 2010 there were very few video
+#games developed for ps2. After 2010, there were no video games developed for PS2.
+#Finally, in 2010 there were more video games developed for PS3 and X360 than for other platforms.
 ```
 ----------------------------------------------------------------------------
