@@ -293,6 +293,7 @@ head(oil)
 
 
 data("nba_east")
+
 head(nba_east)
 
 library(reshape2)
