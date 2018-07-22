@@ -1,0 +1,68 @@
+---
+title: "Group Projects"
+author: "Karen Mkhitaryan"
+date: "July 14, 2018"
+output: html_document
+---
+
+Group Homework #4
+
+- You have to submit the group homework in both .Rmd and .pdf formats.
+- Report (.pdf) must be minimum 10 pages long.
+- Use command echo=F not to include any R code in your report.
+---------------------------
+
+In this group homework you will need to use Web scraping techqniques (Web Scraping and APIs) to scrap data from the Web and work on it.
+
+Group Homework is divided into 2 parts.
+
+1) Use Web Scraping or API approaches to scrap reasonable quantitative data from the web and do quantitative analysis (Plots, Vizualizations, Data cleaning, Meaningful conclusions, etc.).
+
+2) Use Web scraping or API approaches to scrap reasonable text data and do text mining on it (Regular expressions, text mining, sentiment analysis etc.).
+
+NOTE!!!---You can't use the same approach for two parts. Both Web scraping and API approaches must be used.
+
+-----------------------------------------------------------------
+Some examples of websites and APIs to scrap data:
+
+-----Web Scraping------
+
+#FIS Alpine skiing World Cup standings in One season.
+https://data.fis-ski.com/global-links/statistics/multi-cup-standings.html?perseason=true&place=&gender=ALL&cup=WC&nation=&seasoncode=ALL&sector=AL&orderby=seasoncode&search=Search
+
+#La Liga (Spain) football players statistics.
+https://www.foxsports.com/soccer/stats?competition=2&season=20170&category=STANDARD
+
+#Some notable deaths in January 2018.
+https://en.wikipedia.org/wiki/Deaths_in_January_2018
+
+#Snooker Players Statistics
+https://cuetracker.net/statistics/matches-and-frames/won/all-time
+
+#Basketball Statistics
+https://www.basketball-reference.com/
+
+-----APIs------
+
+https://github.com/seemethere/nba_py/wiki/stats.nba.com-Endpoint-Documentation
+
+https://github.com/toddmotto/public-apis
+
+
+NOTE!!!---These examples can be used but each group must use distinct data sources.
+
+------------------------------------------------------------------
+
+*****Grading*****
+
+Homework will be graded based on the following:
+
+-- Complexity of the work.
+How complex was the scraping and cleaning the data from the Web. Also overall complextiy of the work.
+
+-- Actuality of the work.
+How actual are the analysis performed and whether the results are meaningful or not.
+
+-- Presentation of the work.
+How the work is presented (Beautiful visualizations, proper explanations)
+

@@ -1,0 +1,299 @@
+---
+title: "Group Homework"
+author: "Tigran Sedrakyan"
+date: "July 21, 2018"
+output:
+  html_document:
+    df_print: paged
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(httr)
+library(stringr)
+library(tm) 
+library(ggplot2)
+library(qdap)
+library(wordcloud)
+library(gridExtra)
+library(httr)
+library(jsonlite)
+knitr::opts_chunk$set(echo = F, warning = F, error = T, message = F)
+```
+
+# Quantitative Analysis
+## Getting the data
+
+For getting the quantitative data, we chose API requests to [Exchange Rates API](https://exchangeratesapi.io/). This API provides exchange rates of currencies for any day since 1999. We made several types of date requests, but for any of them the base currency was chosen the USD. 
+
+## Analysing the data
+
+
+```{r}
+url <- modify_url("https://exchangeratesapi.io/api/latest", query = list(base = "USD"))
+req <- fromJSON(url)
+rates <- req[3]
+cols <- as.data.frame(rates)
+cols <- colnames(cols)
+
+vals <- matrix(unlist(rates), byrow = T)
+
+df <- list(cols, vals)
+df <- as.data.frame(df)
+colnames(df) <- c("symbol", "rate")
+
+ggplot(df, aes(x = df$symbol, y = (df$rate), fill = df$rate)) + geom_bar(stat="identity") +
+  coord_cartesian(ylim = c(0, 300)) + theme(axis.text.x = element_text(angle = 90)) +
+  labs(title = "USD Based Latest Rates", x = "Symbol", y = "Rate") + 
+  scale_fill_continuous(name = "Rate")
+```
+
+In the bar plot above we can see the latest exchange rates based on US dollar. The x-axis shows the symbols for currencies and the rates are depicted on the y-axis. According do the plot, we can say that after IDR and KRW, HUF and JPY have the highest rates. Moreover, GBP has the lowest rate. We can represent the same chart in a bit more elegant form.
+
+```{r}
+df1 <- df[1:10,]
+ggplot(df1, aes(x = df1$symbol, y = df1$rate, fill = df1$rate))+
+  geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + 
+  labs(title="Pie Chart Representation of Exchange Rate", x="Symbol of the Currencies", y="Rating")
+```
+
+However those chart stand for the most recent exchange rates. Let's see, however, how the rate for EUR has changed, for the last 4 years.
+
+```{r error = TRUE}
+df <- list(cols, vals)
+df <- as.data.frame(df)
+colnames(df) <- c("symbol", "rate")
+eu18 = df[df$symbol == "rates.EUR",]
+eu18$symbol = "EUR_18"
+
+## for 2014
+
+url14 <- modify_url("https://exchangeratesapi.io/api/2014-01-01", query = list(base = "USD"))
+req14 <- fromJSON(url14)
+rates14 <- req14[3]
+cols14 <- as.data.frame(rates14)
+cols14 <- colnames(cols14)
+vals14 <- matrix(unlist(rates14), byrow = T)
+df14 <- list(cols14, vals14)
+df14 <- as.data.frame(df14)
+colnames(df14) <- c("symbol", "rate")
+eu14 = df14[df14$symbol == "rates.EUR",]
+eu14$symbol = "EUR_14"
+
+### for 2015
+
+url15 <- modify_url("https://exchangeratesapi.io/api/2015-01-01", query = list(base = "USD"))
+req15 <- fromJSON(url15)
+rates15 <- req15[3]
+cols15 <- as.data.frame(rates15)
+cols15 <- colnames(cols15)
+vals15 <- matrix(unlist(rates15), byrow = T)
+df15 <- list(cols15, vals15)
+df15 <- as.data.frame(df15)
+colnames(df15) <- c("symbol", "rate")
+eu15 = df15[df15$symbol == "rates.EUR",]
+eu15$symbol = "EUR_15"
+
+### for 2016
+url16 <- modify_url("https://exchangeratesapi.io/api/2016-01-01", query = list(base = "USD"))
+req16 <- fromJSON(url16)
+rates16 <- req16[3]
+cols16 <- as.data.frame(rates16)
+cols16 <- colnames(cols16)
+vals16 <- matrix(unlist(rates16), byrow = T)
+df16 <- list(cols16, vals16)
+df16 <- as.data.frame(df16)
+colnames(df16) <- c("symbol", "rate")
+eu16 = df16[df16$symbol == "rates.EUR",]
+eu16$symbol = "EUR_16"
+
+
+### for 2017
+url17 <- modify_url("https://exchangeratesapi.io/api/2017-01-01", query = list(base = "USD"))
+req17 <- fromJSON(url17)
+rates17 <- req17[3]
+cols17 <- as.data.frame(rates17)
+cols17 <- colnames(cols17)
+vals17 <- matrix(unlist(rates17), byrow = T)
+df17 <- list(cols17, vals17)
+df17 <- as.data.frame(df17)
+colnames(df17) <- c("symbol", "rate")
+eu17 = df17[df17$symbol == "rates.EUR",]
+eu17$symbol = "EUR_17"
+
+
+eu14 <- as.list(eu14)
+eu15 <- as.list(eu15)
+eu16 <- as.list(eu16)
+eu17 <- as.list(eu17)
+eu18 <- as.list(eu18)
+
+try <- do.call(rbind, Map(data.frame, Symbol = c(eu14$symbol, eu15$symbol, eu16$symbol, eu17$symbol , eu18$symbol),
+                          Rate = c(eu14$rate, eu15$rate, eu16$rate, eu17$rate, eu18$rate)))
+rownames(try)<- NULL
+
+ggplot(try, aes(Rate, y = Symbol)) + geom_point(stat="identity") +
+  coord_flip()
+```
+
+This plot shows a general idea about the rates of EURO based USD from 2014 to 2018. For the plot, only a single day has been chosen each year for a genral idea about the behavior of the rates thorugh years. We enounter the hight rate in 2017 and the lowest 2014. We see a constant increase with the exception of last year, when rate for Euro has dropped. 
+
+# Qualitative Analysis
+## Getting the data
+
+For qualitative analysis part of our group homework we chose to scrape data from Steam game store and service. For this purpose, we created a dataframe with 4 columns: Game Id, Game Title, Vote and Review. The first one shows the id of the game, the second one corresponds to the title, third one is "Recommended" or "Not recommended", converted to a number (1 and -1, correspondingly). The fourth one is the review left by the user. We chose 5 games, and for each game we've scraped the most recent 1010 reviews, with corresponding votes. It's worth noting that we chose the 5 most played games at the moment, according to [SteamDB](http://steamdb.info) in the corresponding order of daily players:
+
+1. PLAYERUNKNOWN'S BATTLEGROUNDS
+2. Dota 2
+3. Counter-Strike: Global Offensive
+4. Warframe
+5. Tom Clancy's Rainbow Six Siege. 
+
+The game ids were extracted manually and kept in a vector over which we later iterated. The rest of the data, including titles were scraped using different techniques. The data was then saved into csv file, for easier future usage.
+
+Of particular interest is the column Review, which we had to clean of the needless information, which could later interfered in the analysis part. With every review came the first phrase, which contained the 'Posted: ' + the date of posting of the review. Because we're doing pure text analysis we thought that it'd be better to get rid of this text This was achieved using regex patterns. Whitespaces, with the exception of space, and non-ASCII characters were also removed, thus leaving pure reviews, if such were present. All of the above can be found in file which can be found in the scrape.R file attached.
+
+In the end we got a dataframe that looks like this:
+```{r}
+games <- read.csv("Games.csv", stringsAsFactors=FALSE)
+head(games)
+```
+
+##Analysing the data
+
+First of all, let's  see how review character length is distributed.
+
+```{r}
+# Distribution of Review Length
+qplot(nchar(games$Review), geom = "histogram", binwidth = 80, fill = I("blue")) + 
+      coord_cartesian(xlim = c(0, 5000)) + 
+      labs(x = "Number of characters in Reviews", y = "Count of Reviews", 
+           title = "Distribution of Review Length")
+```
+
+The picture is not surprising. Only very few users spend their time on writing reviews with over 1000 charecter length. Mostly people manage to fit their gratitude or anger in less symbols, that's why we have more reviews with few symbols and less reviews with a lot of symbols. But how does this plot look for each game individually?
+
+```{r}
+# Distribution of Review Length By Game
+games %>%
+  group_by(Game.Title) %>%
+  ggplot(aes(x = nchar(Review),  fill = Game.Title)) + 
+  geom_histogram(binwidth = 200) + facet_grid(.~Game.Title) + 
+  theme(axis.text.x = element_text(angle = 90)) + guides(fill=FALSE) + 
+  coord_cartesian(xlim = c(0, 5000)) + 
+  labs(x = "Number of characters in Reviews", y = "Count of Reviews", 
+       title = "Distribution of Review Length By Game")
+```
+
+As we see review length distribution for each game isn't much different from that of all game altogether. Although we notice here that Counter Strike and Dota 2, in contranst to the other 3 games, are concentrated to the left, meaning that people spend the least time and charecters for writing reviews for these games. We also notice that little spike around 3000 charecters for Warframe. Let's see which words are the most popular in reviews of this game.
+
+```{r}
+# custom function shorthand to calculate dtm matrix
+dtm_matrix <- function(reviews, title = '', tfidf = F) {
+  reviews_vs <- VectorSource(reviews)
+  reviews_corpus <- tm_map(VCorpus(reviews_vs), removeWords, tolower(unlist(strsplit(title, '\\s|-|:'))))
+  
+  if (tfidf) {
+    reviews_dtm <- TermDocumentMatrix(reviews_corpus, 
+                                      control = list(removeSparseTerms = T, weighting = weightTfIdf, removeNumbers = T, 
+                                                     removePunctuation = T, stopwords = T, stemming = T))
+  } else {
+    reviews_dtm <- TermDocumentMatrix(reviews_corpus,
+                                      control = list(removeSparseTerms = T, removeNumbers = T, removePunctuation = T, stopwords = T, stemming = T))
+  }
+  dtm_mat <- as.matrix(reviews_dtm)
+  return(dtm_mat)
+}
+
+# calculating frequency tables for every game
+game_titles <- unique(games$Game.Title)
+all_freqs <- data.frame(stringsAsFactors = F)
+all_docs <- c()
+for (title in unique(game_titles)) {
+  dtm_mat <- games %>%
+    filter(Game.Title == title) %>%
+    dtm_matrix(title = title, tfidf = F)
+  freqs <- rowSums(dtm_mat)
+  df_freq <- data.frame(title = title, terms = rownames(dtm_mat), 
+                        freq = freqs, stringsAsFactors = F) %>%
+                        arrange(desc(freq))
+  all_freqs <- rbind(all_freqs, df_freq)
+  
+  all_docs <- c(all_docs, games %>%
+                  filter(Game.Title == title) %>% select(c("Review")) %>% paste(collapse = ''))
+}
+```
+
+```{r}
+warframe_frequent_words = all_freqs[all_freqs$title == 'Warframe', ] %>%
+  filter(terms != 'game') %>%
+  top_n(100, wt = freq)
+
+wordcloud(words = warframe_frequent_words$terms, freq = warframe_frequent_words$freq, 
+          min.freq = 10, max.freq = 5000, random.order = FALSE,
+          colors = brewer.pal(10, "Spectral"))
+```
+
+Its title 'Warframe' is predominant here. We also notice terms like play, free and good, indicating generally favourable reviews. But this wordcloud doesn't tell us much about the game compared to the other 4 games in out list. Let's see how games compare in a comparison wordcloud.
+
+```{r}
+# comparison cloud for all the 5 games
+comparison_matrix <- as.matrix(dtm_matrix(all_docs, title = game_titles, tfidf = F))
+colnames(comparison_matrix) <- game_titles
+set.seed(1)
+comparison.cloud(comparison_matrix, max.words = 300, title.size = 0.5)
+```
+
+The word 'cheater' is instantly noticeable, as it's the most popular one. As we see from the colors, it's related to game Playerunknown's Battlegrounds (PUBG). We also notice words 'hacker', 'cheat' and 'lag' for this game, meaning that users probablt didn't like it that much. Game names - Dota, Warframe, CSGO, PUBG and Siege are quite prominent here, too. We also notice game developer company names, like Valve and Ubisoft. However, we have quite a lot of unuseful words, like 'game' and 'play', and several game titles. We can scale down importance of those words and plot the wordcloud again:
+
+```{r}
+# comparison cloud for all the 5 games
+comparison_matrix <- as.matrix(dtm_matrix(all_docs, title = game_titles, tfidf = T))
+colnames(comparison_matrix) <- game_titles
+set.seed(1)
+comparison.cloud(comparison_matrix, max.words = 300, title.size = 0.5)
+```
+
+The 'warfram' in the center indicates that most of the reviews in general contained this word the most. We still have some company and game names here. But notably for PUBG, we still have word 'cheater'. We also have another new noticeable word - 'regionblockchina', indicating the recent block of the game, by Chinese government. Judging by these two words, the game's ratings, calculated by dividing number of positive votes, by the number of total votes, as well as review polarity cannot be high. Let's check it and compare with other games:
+
+```{r}
+# polarity scores of reviews and user ratings
+pol_score <- scores(polarity(text.var = games$Review, grouping.var = games$Game.Title))
+rating <- games %>%
+            group_by(Game.Title) %>%
+            summarise(Rating = 100 * length(Vote[Vote > 0])/length(Vote))
+polarity_rating_df <- merge(rating, select(pol_score, c('ave.polarity', 'Game.Title')), by = 'Game.Title')
+```
+
+```{r}
+# Average polarity barplot
+p1 <- ggplot(polarity_rating_df %>% arrange(desc(ave.polarity)), aes(x = factor(Game.Title, levels = Game.Title), y = ave.polarity, fill = ave.polarity)) + geom_bar(stat = 'identity') + 
+        theme(axis.text.x = element_text(size = 5, angle = 45, margin = margin(t = 15))) + 
+        scale_fill_gradient(low = "red", high = "blue", name = "Polarity") + 
+        labs(x = "Game Title", y = "Average Polarity of reviews", title = "Average polarity by game")
+# Rating barplot
+p2 <- ggplot(polarity_rating_df %>% arrange(desc(Rating)), aes(x = factor(Game.Title, levels = Game.Title), y = Rating, fill = Rating)) + geom_bar(stat = 'identity') + 
+  theme(axis.text.x = element_text(size = 5, angle = 45, margin = margin(t = 15))) + 
+  scale_fill_gradient(low = "red", high = "blue", name = "Rating") + 
+  labs(x = "Game Title", y = "Rating", title = "Rating by game")
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+As expected, PUBG has the lowest polarity, which drops below zero, indicating that the reviews were mostly negative. In contrary to PUBG, is already familiar Warframe, which has pretty respectable polarity score of almost 0.3. We see approximately the same picture for rating barplot. PUBG has the lowest rating of about 12-13 out of 100. Warframe is again on the opposite side of the chart with rating of more than 90. But Polarity and Ratings from those two charts seem correlated, don't they?
+
+```{r}
+# Dependency of average polarity on the rating
+ggplot(polarity_rating_df, aes(x = Rating, y = ave.polarity, 
+                               color = factor(Game.Title, levels = Game.Title))) + 
+        geom_point(size = 3) + theme(legend.title=element_blank()) +
+        labs(x = "Rating", y = "Average Polarity of reviews", 
+             title = "Dependency of average polarity on the rating")
+```
+
+They are indeed, positively correlated as we see. Increase in one of them implies the increase of the other and vice versa.
+
+Looking at this graphs one might think that PUBG definitely cannot sell good. However, one unexplainable phonomenon to humanity is how this game manages to stay the [#1 top selling game in the world](https://store.steampowered.com/search/?filter=topsellers) for over a year, with over a million active daily players. One of the possible factors is that it's one of the first relatively big games in its [battle royale](https://en.wikipedia.org/wiki/Battle_royale_game) genre.
+
+We can make a conlusion that people pay more attention to the top selling charts, rather than reviews left by users just like them. This implies that if the game sells good doesn't necessarily mean that it's the best one.

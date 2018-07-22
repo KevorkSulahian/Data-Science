@@ -133,3 +133,93 @@ names <- str_replace_all(names, pattern = "\\s+", replacement = " ")
 names
 number <- str_replace_all(phones, pattern = "[^0-9]", replacement = "")
 number
+
+
+### text mining 
+library(tm)
+
+text <- c("Dogs are the best pets.","Are these dogs yours?",
+        "My dogs are the best dogs")
+
+library(stringr)
+text <- str_remove_all(text, pattern = "[:punct:]")
+vs <- VectorSource(text)
+corpus <- VCorpus(vs)
+corpus
+
+corpus[[2]][1]
+
+dtm <- DocumentTermMatrix(corpus)
+inspect(dtm)
+
+dtm1 <- DocumentTermMatrix(corpus, control = list(weighting = weightTfIdf))
+inspect(dtm1)
+
+lyrics <- read.csv("lyrics.csv", stringsAsFactors = F)
+summary(lyrics$year)
+
+library(dplyr)  
+
+lyrics %>%
+  group_by(year) %>%
+  summarise(count = n()) %>%
+  arrange(desc(year))
+
+lyrics <-lyrics %>%
+  group_by(year) %>%
+  filter(year <= 2016, year >= 1968)
+
+library(ggplot2)
+
+ggplot(data = lyrics, aes(x=genre)) + geom_bar()
+
+lyrics$char_num <- nchar(lyrics$lyrics)
+summary(lyrics$char_num)
+
+lyrics <- lyrics %>%
+  filter(char_num >100 & genre != "Not Available" & year > 1968 & year <= 2016)
+dim(lyrics)
+
+lyrics$lyrics <- iconv(lyrics$lyrics, to= "ASCII", sub = "")
+
+beyonce <- lyrics[lyrics$artist == "beyonce-knowles",]
+
+beyonce_vs <- VectorSource(beyonce$lyrics)
+beyonce_corpus <- VCorpus(beyonce_vs)
+
+beyonce_dtm <- TermDocumentMatrix(beyonce_corpus, 
+                                  control = list(removeNumbers = T, removePunctuation = T,
+                                                 stopwords = T, stemming = T))
+beyonce_dtm
+
+dtm_mat <- as.matrix(beyonce_dtm)
+freqs <- rowSums(dtm_mat)
+df_freqs <- data.frame(terms = rownames(dtm_mat),
+                       freq  = freqs, stringsAsFactors = F)
+df_freqs <- df_freqs[order(df_freqs$freq, decreasing = T), ]
+head(df_freqs)
+
+library(RColorBrewer)
+
+ggplot(df_freqs, aes(x = reorder(terms, freq), y = freq)) +
+  geom_bar(stat="identity", fill = brewer.pal(n = 10, name="Spectral")) +
+  coord_flip() + labs(x = "Terms", y = "Frequency", title = "top 10 words")
+
+set.seed(1)
+library(wordcloud)
+
+wordcloud(words = df_freqs$terms, freq = df_freqs$freq, min.freq = 10, max.words = 200, random.order = FALSE,
+          colors = brewer.pal(8, "Dark2"))
+
+
+### sentiment analysis
+
+library(qdap)
+
+deamplification.words
+
+str <- c("This is a very good class", "I hate coming early in the morning",
+         "I deeply love the course, but i hate Sports")
+
+str_df <- data.frame(str, author= c(1:3))
+polarity(text.var = str_df$str, grouping.var = str_df$author)

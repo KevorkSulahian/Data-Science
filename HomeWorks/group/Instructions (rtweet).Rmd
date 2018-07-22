@@ -1,0 +1,29 @@
+---
+title: "rtweet"
+author: "Karen Mkhitaryan"
+date: "July 16, 2018"
+output: html_document
+---
+
+Below are the steps for accessing Twitter's stream API's.
+
+#1) Create an app in Twitter (If not Registered in Twitter, register)
+  - go to apps.twitter.com 
+  - Click on "Create New App" and fill required information
+    * Name
+    * Description
+    * Website- your twitter profile link
+    * Callback- http://127.0.0.1:1410
+    * Check the agreement and Register
+    
+  - Go to your app
+  - Go to Keys and Access Tokens
+  - Below click on "Create My Access Token"
+  
+#2) Now in "Keys and Access Tokens" you will see
+* Consumer Key (API Key)
+* Consumer Secret (API Secret)
+* Access Token
+* Access Token Secret
+
+#(These keys are required to collect data from Twitter and work on it.)
