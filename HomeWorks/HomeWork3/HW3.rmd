@@ -1,0 +1,192 @@
+---
+title: "Homework 3"
+author: "Kevork Sulahian"
+output: pdf_document
+chunk_output_type: console
+---
+#P1)
+
+```{r}
+library(readr)
+Mobile <- read_csv("Mobile.csv")
+library(dplyr)
+
+Mobile$`Brand Name` <- trimws(toupper(Mobile$`Brand Name`))
+Mobile <- Mobile %>%
+  filter(Price >= 22, `Brand Name` %in% c("NOKIA", "APPLE", "SAMSUNG","LENOVO", "HUAWEI", "ACER", "ALCATEL",
+                                          "AMAZON", "ASUS", "BLACKBERRY", "SONY", "GOOGLE", "HTC", "LG",
+                                          "MOTOROLA"))
+
+```
+
+#P2)
+
+```{r}
+Mobile %>% group_by(`Brand Name`) %>%
+            summarise(sold = n()) %>% 
+            arrange(desc(sold))
+```
+
+#P3)
+
+```{r}
+library(ggplot2)
+means <- Mobile%>%
+  group_by(`Brand Name`) %>%
+  summarise(average_price = mean(Price),
+            average_rating = mean(Rating))
+
+means %>% arrange(average_rating) %>% 
+              ggplot(aes(x = factor(`Brand Name`, levels = `Brand Name`), y = average_rating)) + 
+              geom_bar(stat = 'identity', fill="blue") + 
+              labs(x = 'Brand', y = 'Average of Rating', title = 'Average of Rating by brand') +
+              theme(axis.text.x = element_text(angle = 90))
+
+means %>% arrange(average_price) %>% 
+              ggplot(aes(x = factor(`Brand Name`, levels = `Brand Name`), y = average_price)) + 
+              geom_bar(stat = 'identity', fill="red") + 
+              labs(x = 'Brand', y = 'Average of Price', title = 'Average of Price by brand') +
+              theme(axis.text.x = element_text(angle = 90))
+```
+
+#P4)
+
+```{r}
+Mobile %>% ggplot(aes(x = Rating)) + geom_bar(fill="red") +
+  labs(title = "count vs rating")
+```
+
+#P5)
+
+```{r}
+
+library(stringr)
+name_all <- c("Arman Hovespyan", "Davtyan Anna", "Anna 002 Hambardzumyan", "/01 Sargis 239 Hovakimyan99")
+first_names <- str_extract_all(gibberish, pattern = regex("[a-zA-Z]+"))
+names = list()
+for (i in 1:length(first_names)) {
+  names[i] = paste0(first_names[[i]][1], " ", first_names[[i]][2])
+}
+  
+```
+
+#P6)
+```{r}
+Mobile$Reviews <- paste0(Mobile$Reviews, " (", as.character(Mobile$`Review Votes`), ")")
+Mobile$Review.Votes <- str_extract_all(Mobile$Reviews, pattern = '\\(\\d\\)$')
+# was I supposed to remove the Reviews or just the parnthesis ?
+Mobile$Reviews <- str_remove_all(Mobile$Reviews)
+```
+
+#P7)
+```{r}
+Mobile$Review.Votes <- NULL
+brands <- c("APPLE", "SAMSUNG", "HTC", "LENOVO")
+Mobile %>% filter(`Brand Name` %in% brands ) %>%
+            group_by(Rating, `Brand Name`) %>% summarise(Count = n()) %>%
+            ggplot(aes(x = Rating, y = Count)) + geom_bar(stat = 'identity', fill = "red") +
+            facet_grid(.~`Brand Name`)
+```
+## Based on the graph Apple and Samsung have the highest count and rating and Lenovo has almost have no reviews while HTC has a little bit more
+
+
+#P8)
+```{r}
+review_lengths <- unlist(lapply(Mobile$Reviews, nchar))
+summary(review_lengths)
+length(review_lengths[review_lengths > 5000])
+```
+
+We see that only ~300 reviews out of 220K reviews have length of > 5000, so we can set plot limits from 0 to 5000.
+
+```{r}
+qplot(review_lengths, geom = "histogram", binwidth = 50, fill="blue") + coord_cartesian(xlim = c(0, 5000))
+```
+
+#P9)
+```{r}
+library(tm)
+apple_samsung <- Mobile %>% filter(`Brand Name` %in% c('APPLE', 'SAMSUNG'))
+reviews <- head(apple_samsung$Reviews, 20000)
+reviews_vs <- VectorSource(reviews)
+reviews_corpus <- VCorpus(reviews_vs)
+reviews_dtm <- TermDocumentMatrix(reviews_corpus, control = list(removeNumbers = T, removePunctuation = T, stopwords = T, stemming = T))
+inspect(reviews_dtm)
+
+dtm_mat <- as.matrix(reviews_dtm)
+freqs <- rowSums(dtm_mat)
+df_freq <- data.frame(terms = rownames(dtm_mat), freq = freqs, stringsAsFactors = F) %>%
+    arrange(desc(freq))
+
+top10 <- df_freq %>% top_n(10)
+ggplot(top10 , aes(x = factor(terms, levels = terms), y = freq)) + geom_bar(stat = "identity", fill = "red") +
+  labs(x = "levels", y = "frequency")
+```
+
+#P10)
+```{r}
+library(wordcloud)
+wordcloud(words = df_freq$terms, freq = df_freq$freq, min.freq = 100, max.words = 200, random.order = F, colors = brewer.pal(8,"Dark2"))
+```
+
+#P11)
+```{r}
+reviews_dtm_tfidf <- TermDocumentMatrix(reviews_corpus, control = list(weighting = weightTfIdf, removeNumbers = T, removePunctuation = T, stopwords = T, stemming = T))
+dtm_mat <- as.matrix(reviews_dtm_tfidf)
+inspect(reviews_dtm_tfidf)
+
+freqs <- rowSums(dtm_mat)
+df_freq <- data.frame(terms = rownames(dtm_mat), freq = freqs, stringsAsFactors = F) %>% arrange(desc(freq))
+
+top10 <- df_freq %>% top_n(10)
+ggplot(top10 , aes(x = factor(terms, levels = terms), y = freq)) + geom_bar(stat = "identity")
+
+wordcloud(words = df_freq$terms, freq = df_freq$freq, min.freq = 100, max.words = 200, random.order = F)
+```
+
+#P12)
+```{r}
+library('qdap')
+reviews <- unlist(lapply(Mobile$Reviews[1:5000], iconv, to="ASCII", sub = ""))
+brand <- Mobile$`Brand Name`[1:5000]
+pol <- polarity(text.var = reviews, grouping.var = brand)
+pol_scores <- scores(pol)
+pol_scores %>% arrange(desc(ave.polarity)) %>%
+                select(brand, ave.polarity) %>%
+                head(n = 10)
+```
+
+#P13)
+```{r}
+reviews <- unlist(lapply(Mobile$Reviews[1:1000], iconv, to="ASCII", sub = ""))
+pol_scores <- scores(polarity(text.var = reviews, grouping.var = c(1:1000)))
+
+df <- select(Mobile[1:1000, ], c("`Brand Name`", "Reviews", "Rating")) %>% 
+        mutate(AuthorID = c(1:1000))
+
+df <- mutate(df, Average_Polaraity = pol_scores$ave.polarity)
+
+ggplot(df, aes(x =  as.character(Rating), y = Average_Polaraity)) + geom_boxplot()
+```
+
+#P14)
+```{r}
+df$Average_Polaraity <- ifelse(df$Average_Polaraity > 0, 'Positive', ifelse(df$Average_Polaraity < 0, 'Negative', 'Neutral'))
+
+df %>% group_by(`Brand Name`, Average_Polaraity) %>%
+        summarise(Count = n()) %>%
+          ggplot(aes(x = Average_Polaraity, y = Count)) + geom_bar(stat = 'identity') + facet_grid(.~`Brand Name`) + theme(axis.text.x = element_text(angle = 90))
+```
+
+#p15)
+```{r}
+dissimilarity <- Dissimilarity(Mobile$Reviews, grouping.var = Mobile$`Brand Name`)
+dis_mat <- as.matrix(dissimilarity)
+
+most_similar <- dimnames(arrayInd(which(dis_mat == max(dis_mat)), .dim = dim(dis_mat), .dimnames = dimnames(dis_mat), useNames = T))[[1]]
+
+diag(dis_mat) <- Inf
+most_different <- dimnames(arrayInd(which(dis_mat == min(dis_mat)), .dim = dim(dis_mat), .dimnames = dimnames(dis_mat), useNames = T))[[1]]
+
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

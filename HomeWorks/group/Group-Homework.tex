@@ -1,0 +1,322 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\PassOptionsToPackage{usenames,dvipsnames}{color} % color is loaded by hyperref
+\hypersetup{unicode=true,
+            pdftitle={Group Homework},
+            pdfauthor={Tigran Sedrakyan},
+            colorlinks=true,
+            linkcolor=Maroon,
+            citecolor=Blue,
+            urlcolor=blue,
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Group Homework}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Tigran Sedrakyan}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{July 21, 2018}
+
+
+\begin{document}
+\maketitle
+
+\section{Quantitative Analysis}\label{quantitative-analysis}
+
+\subsection{Getting the data}\label{getting-the-data}
+
+For getting the quantitative data, we chose API requests to
+\href{https://exchangeratesapi.io/}{Exchange Rates API}. This API
+provides exchange rates of currencies for any day since 1999. We made
+several types of date requests, but for any of them the base currency
+was chosen the USD.
+
+\subsection{Analysing the data}\label{analysing-the-data}
+
+\includegraphics{Group-Homework_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+In the bar plot above we can see the latest exchange rates based on US
+dollar. The x-axis shows the symbols for currencies and the rates are
+depicted on the y-axis. According do the plot, we can say that after IDR
+and KRW, HUF and JPY have the highest rates. Moreover, GBP has the
+lowest rate. We can represent the same chart in a bit more elegant form.
+
+\includegraphics{Group-Homework_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+However those chart stand for the most recent exchange rates. Let's see,
+however, how the rate for EUR has changed, for the last 4 years.
+
+\includegraphics{Group-Homework_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+This plot shows a general idea about the rates of EURO based USD from
+2014 to 2018. For the plot, only a single day has been chosen each year
+for a genral idea about the behavior of the rates thorugh years. We
+enounter the hight rate in 2017 and the lowest 2014. We see a constant
+increase with the exception of last year, when rate for Euro has
+dropped.
+
+\section{Qualitative Analysis}\label{qualitative-analysis}
+
+\subsection{Getting the data}\label{getting-the-data-1}
+
+For qualitative analysis part of our group homework we chose to scrape
+data from Steam game store and service. For this purpose, we created a
+dataframe with 4 columns: Game Id, Game Title, Vote and Review. The
+first one shows the id of the game, the second one corresponds to the
+title, third one is ``Recommended'' or ``Not recommended'', converted to
+a number (1 and -1, correspondingly). The fourth one is the review left
+by the user. We chose 5 games, and for each game we've scraped the most
+recent 1010 reviews, with corresponding votes. It's worth noting that we
+chose the 5 most played games at the moment, according to
+\href{http://steamdb.info}{SteamDB} in the corresponding order of daily
+players:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  PLAYERUNKNOWN'S BATTLEGROUNDS
+\item
+  Dota 2
+\item
+  Counter-Strike: Global Offensive
+\item
+  Warframe
+\item
+  Tom Clancy's Rainbow Six Siege.
+\end{enumerate}
+
+The game ids were extracted manually and kept in a vector over which we
+later iterated. The rest of the data, including titles were scraped
+using different techniques. The data was then saved into csv file, for
+easier future usage.
+
+Of particular interest is the column Review, which we had to clean of
+the needless information, which could later interfered in the analysis
+part. With every review came the first phrase, which contained the
+`Posted:' + the date of posting of the review. Because we're doing pure
+text analysis we thought that it'd be better to get rid of this text
+This was achieved using regex patterns. Whitespaces, with the exception
+of space, and non-ASCII characters were also removed, thus leaving pure
+reviews, if such were present. All of the above can be found in file
+which can be found in the scrape.R file attached.
+
+In the end we got a dataframe that looks like this:
+
+\begin{verbatim}
+## Error in file(file, "rt"): cannot open the connection
+\end{verbatim}
+
+\begin{verbatim}
+## Error in head(games): object 'games' not found
+\end{verbatim}
+
+\subsection{Analysing the data}\label{analysing-the-data-1}
+
+First of all, let's see how review character length is distributed.
+
+\begin{verbatim}
+## Error in nchar(games$Review): object 'games' not found
+\end{verbatim}
+
+\includegraphics{Group-Homework_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+The picture is not surprising. Only very few users spend their time on
+writing reviews with over 1000 charecter length. Mostly people manage to
+fit their gratitude or anger in less symbols, that's why we have more
+reviews with few symbols and less reviews with a lot of symbols. But how
+does this plot look for each game individually?
+
+\begin{verbatim}
+## Error in eval(lhs, parent, parent): object 'games' not found
+\end{verbatim}
+
+As we see review length distribution for each game isn't much different
+from that of all game altogether. Although we notice here that Counter
+Strike and Dota 2, in contranst to the other 3 games, are concentrated
+to the left, meaning that people spend the least time and charecters for
+writing reviews for these games. We also notice that little spike around
+3000 charecters for Warframe. Let's see which words are the most popular
+in reviews of this game.
+
+\begin{verbatim}
+## Error in unique(games$Game.Title): object 'games' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in unique(game_titles): object 'game_titles' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in -freq: invalid argument to unary operator
+\end{verbatim}
+
+Its title `Warframe' is predominant here. We also notice terms like
+play, free and good, indicating generally favourable reviews. But this
+wordcloud doesn't tell us much about the game compared to the other 4
+games in out list. Let's see how games compare in a comparison
+wordcloud.
+
+\begin{verbatim}
+## Error in eval(expr, envir, enclos): object 'game_titles' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in term.matrix[, i]: subscript out of bounds
+\end{verbatim}
+
+The word `cheater' is instantly noticeable, as it's the most popular
+one. As we see from the colors, it's related to game Playerunknown's
+Battlegrounds (PUBG). We also notice words `hacker', `cheat' and `lag'
+for this game, meaning that users probablt didn't like it that much.
+Game names - Dota, Warframe, CSGO, PUBG and Siege are quite prominent
+here, too. We also notice game developer company names, like Valve and
+Ubisoft. However, we have quite a lot of unuseful words, like `game' and
+`play', and several game titles. We can scale down importance of those
+words and plot the wordcloud again:
+
+\begin{verbatim}
+## Error in eval(expr, envir, enclos): object 'game_titles' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in term.matrix[, i]: subscript out of bounds
+\end{verbatim}
+
+The `warfram' in the center indicates that most of the reviews in
+general contained this word the most. We still have some company and
+game names here. But notably for PUBG, we still have word `cheater'. We
+also have another new noticeable word - `regionblockchina', indicating
+the recent block of the game, by Chinese government. Judging by these
+two words, the game's ratings, calculated by dividing number of positive
+votes, by the number of total votes, as well as review polarity cannot
+be high. Let's check it and compare with other games:
+
+\begin{verbatim}
+## Error in polarity(text.var = games$Review, grouping.var = games$Game.Title): object 'games' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in eval(lhs, parent, parent): object 'games' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in merge(rating, select(pol_score, c("ave.polarity", "Game.Title")), : object 'rating' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in eval(lhs, parent, parent): object 'polarity_rating_df' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in eval(lhs, parent, parent): object 'polarity_rating_df' not found
+\end{verbatim}
+
+\begin{verbatim}
+## Error in arrangeGrob(...): object 'p1' not found
+\end{verbatim}
+
+As expected, PUBG has the lowest polarity, which drops below zero,
+indicating that the reviews were mostly negative. In contrary to PUBG,
+is already familiar Warframe, which has pretty respectable polarity
+score of almost 0.3. We see approximately the same picture for rating
+barplot. PUBG has the lowest rating of about 12-13 out of 100. Warframe
+is again on the opposite side of the chart with rating of more than 90.
+But Polarity and Ratings from those two charts seem correlated, don't
+they?
+
+\begin{verbatim}
+## Error in ggplot(polarity_rating_df, aes(x = Rating, y = ave.polarity, : object 'polarity_rating_df' not found
+\end{verbatim}
+
+They are indeed, positively correlated as we see. Increase in one of
+them implies the increase of the other and vice versa.
+
+Looking at this graphs one might think that PUBG definitely cannot sell
+good. However, one unexplainable phonomenon to humanity is how this game
+manages to stay the
+\href{https://store.steampowered.com/search/?filter=topsellers}{\#1 top
+selling game in the world} for over a year, with over a million active
+daily players. One of the possible factors is that it's one of the first
+relatively big games in its
+\href{https://en.wikipedia.org/wiki/Battle_royale_game}{battle royale}
+genre.
+
+We can make a conlusion that people pay more attention to the top
+selling charts, rather than reviews left by users just like them. This
+implies that if the game sells good doesn't necessarily mean that it's
+the best one.
+
+
+\end{document}

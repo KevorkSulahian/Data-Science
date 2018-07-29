@@ -1,0 +1,175 @@
+---
+title: "HW#2"
+author: "Karen Mkhitaryan"
+date: "June 29, 2018"
+output: pdf_document
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+
+```
+
+In this homework you will work on video games dataset containing information about popular video games, their sales in North America, Europe, Japan and globally in the world. In the dataset ratings by critics and users are presented and ratings of the games. 
+----------------------------------------------------------------------------
+
+WARNINGS!!! (If not done you will lose points.)
+1) Make sure to put titles on plots and texts on axes.
+2) If the plot is not interpretable, zoom on "x" or "y" axes to make the
+graph more interpretable (P4,P5, P7 and P8).
+--------------------------------------------------------
+
+#P1)
+Import the dataframe in R and with the use of dplyr subset it using the following information.
+
+-remove columns Publisher, JP_Sales (Sales in Japan), Critic_Count, User_Count and Developer.
+-Multiply the numbers in NA_Sales, EU_Sales and GP_Sales by 1 million as they are given in millions of sales.
+-include only those for which NA_Sales>=20000, EU_Sales>=20000 and Ranking is among Everyone("E"),Mature("M"), Teen("T"), Everyone 10+("E10+") and Adults Only ("AO").
+
+```{r}
+
+video<-read.csv("Video_Games.csv",stringsAsFactors = F,na.strings = c("N/A","tbd"))
+video<-video %>%
+  select(-c("Publisher","JP_Sales","Critic_Count","User_Count","Developer")) %>%
+  mutate(NA_Sales=10^6 * NA_Sales, EU_Sales=10^6 * EU_Sales, Global_Sales=10^6 * Global_Sales) %>%
+  filter(NA_Sales>=20000 & EU_Sales>=20000 & Rating %in% c("E","M","T","E10+","AO"))
+  
+```
+
+#P2)
+Use data cleaning tools to clean the data. (x)
+
+(a)
+Look at the columns which are either numeric or integer. Make sure they contain only numbers or NA's (nothing else). (x)
+(b)
+Critic scores can be from 0 to 100 and users scores from 0 to 10. If there are values not from these intervals clean that observations using ifelse statement. (x)
+```{r}
+video$Critic_Score<-ifelse(video$Critic_Score>=100,NA,video$Critic_Score)
+
+video$User_Score<-ifelse(video$User_Score>=10,NA,video$User_Score)
+```
+(c)
+Look at the Genres: check if all categories are unique and if not, clean them so that there are no duplicate names. (x)
+```{r}
+unique(video$Genre)
+
+video$Genre<-toupper(video$Genre)
+
+video$Genre<-trimws(video$Genre)
+
+unique(video$Genre)
+
+```
+
+
+#P3)
+Create a scatterplot displaying how User scores and Critics score are interconnected
+-make the point shape triangle, color red and transperancy 20%. (x)
+Explain what you see in the graph. (x)
+```{r}
+ggplot(video,aes(x=User_Score,y=Critic_Score))+geom_point(shape=2,color="red", alpha=0.2)+labs(title="User Scores vs Critics Scores",x="Usr Scores",y="Critics Scores")
+```
+#P4)
+Construct a graph showing how the global sales of the game is dependent of a score given by the user and explain what you see in the graph. (Hint! ?options to display values without "e" short notation) (x)
+```{r}
+options(scipen = 999)
+ggplot(video,aes(x=User_Score,y=Global_Sales))+geom_point()+labs(title="User Score versus the global sales of the game.",x="User Score",y="Global Sales")+ylim(0,5*10^5)
+```
+
+#P5)
+Make previous plot more appealing using the following. (x)
+-x axis name -- "Score given by the User" color red, bold size=15
+-y axis name -- "Global Sales of the game" color red, bold size=15
+-points (shape - square, color-red, size- 1.5)
+-title of the plot -- "User Score versus Global Sales"
+- Make panel background color #09f2d5
+- axis texts bold black
+```{r}
+options(scipen=999)
+ggplot(video,aes(x=User_Score,y=Global_Sales))+geom_point(shape=22,color="red",size=1.5)+
+  labs(title="User Score versus Global Sales", x="Score given by the User",y="Global Sales of the game")+theme(panel.background = element_rect(fill="#09f2d5"), axis.title.x = element_text(size=15, color="red",face="bold"),axis.title.y = element_text(size=15, color="red",face="bold"),axis.text = element_text(colour ="black",face="bold"))+ylim(0,5*10^5)
+
+```
+#P6)
+Create a histogram to find the distribution of the games by Genre. What are the top 3 Genres. Rotate Genre names on "x" axis to avoid overlapping text (Hint! ?element_text, ?theme) (x)
+
+```{r}
+ggplot(video,aes(x=Genre))+geom_histogram(stat="count")+theme(axis.text.x = element_text(angle = 90))+labs(title="Genre Distribution",x="Genres", y="Count")
+```
+#P7)
+Define the Rating as Factor and use faceting to plot the User score of the game versus the North America Sales for different Ratings. Make comment about the results.(x)
+
+```{r}
+video$Rating<-as.factor(video$Rating)
+ggplot(video,aes(x=User_Score,y=NA_Sales))+geom_point()+facet_grid(.~Rating)+labs(title="User Score vs North America Sales for each rating",x="User Score",y="North America Sales")+ylim(0,5*10^5)
+```
+
+#P8)
+Create a boxplot where "x axis" represents the Genre and "y axis" the Global Sales of the video game for a particular Genre. Make the text on "x" axis vertical (Hint! ?theme, ?element_text). Make some comments.(x) 
+```{r}
+ggplot(video,aes(x=Genre,y=Global_Sales))+theme(axis.text.x = element_text(angle = 90))+   geom_boxplot()+labs(title="Global Sales of the games by Genres",x="Genre",y="Global Sales")
+```
+
+
+#P9)
+Zoom the previous plot (Numbers on "y" axis (0,2million)) to clearly see the boxplots for each Genre and make comments. (x)
+
+```{r}
+ggplot(video,aes(x=Genre,y=Global_Sales))+ylim(0,2000000)+theme(axis.text.x = element_text(angle = 90))+geom_boxplot()+labs(title="Global Sales of the games by Genres",x="Genre",y="Global Sales")
+```
+
+
+#P10)
+Create a barplot using dyplr functionalities and faceting to show the total Global Sales for each year for each Rating.
+```{r}
+video %>%
+  group_by(Rating,Year) %>%
+  summarise(Sum=sum(Global_Sales)) %>%
+  ggplot(aes(x=Year,y=Sum))+geom_bar(stat="identity")+facet_grid(Rating~.)+labs(title="Total Global Sales for each Year for a particular game Rating",x="Year",y="Total sum")
+  
+```
+
+
+#P11)
+Use the pipe operator and functions from dplyr package and show the number of video games in each genre in descending order. (x)
+
+```{r}
+video %>%
+  filter(Genre %in% Genre) %>%
+  group_by(Genre) %>%
+  summarise(Count=n()) %>%
+  arrange(desc(Count))
+```
+
+
+#P12)
+Use dplyr to create a new variable (CU_Score) in Video dataset which for each video game will show the average of Critic score and 10* User Score. (x)
+```{r}
+video<-video %>%
+  mutate(CU_Score=(Critic_Score+10*User_Score)/2)
+```
+
+
+#P13)
+Use the pipe operator and functions from dplyr package to find the top 3 platforms and the number of video games developed for each of them. (x)
+```{r}
+video %>%
+  filter(Platform %in% Platform) %>%
+  group_by(Platform) %>%
+  summarise(Count=n()) %>%
+  arrange(desc(Count))
+```
+#P14)
+We are interested in the number of video games developed for top platforms for different years. Pick the top 3 platforms from previous problem and make other platforms as "Other" using dplyr (Hint! ifelse statement). Thereafter remove observations from dataframe which have NA values (Hint! ?complete.cases).Now use faceting to draw the distribution of games for each year for each platform. Make text on "x" axis vertical and size=6. Make comments how the number of video games changed for each platform for different years.(x)
+
+```{r}
+video<-video %>%
+  mutate(Platform=ifelse(Platform %in% c("PS2","X360","PS3"),Platform,"Other"))
+
+video$Year<-as.factor(video$Year)
+video<-video[complete.cases(video),]
+ggplot(video,aes(x=Year))+theme(axis.text.x = element_text(angle = 90,size = 6))+geom_bar()+facet_grid(.~Platform)+labs(title="Total number of games for each year for a particular platform",x="Year",y="Total No")
+```
+
