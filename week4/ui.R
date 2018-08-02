@@ -98,7 +98,7 @@ ui <- fluidPage(
   ),
     fluidRow(
       column(6, plotOutput("scatterplot")),
-      column(6, dataTableOutput("summar"))
+      column(6, dataTableOutput("summary"))
     )
   )
 
@@ -108,11 +108,9 @@ server <- function(input, output) {
     ggplot(data = movies_num, aes_string(x = input$first, y = input$second)) + 
       geom_point(alpha = input$alpha)
   })
-  ############################
   output$summary <- renderDataTable({
     movies_num[,c(input$first, input$second)]
   })
-  #################
 }
 
 shinyApp(ui = ui, server = server)
